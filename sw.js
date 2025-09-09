@@ -1,5 +1,5 @@
 // cache 버전은 배포 때마다 바꿔 주세요 (캐시 무력화)
-const CACHE = 'vibe6w-v8';
+const CACHE = 'vibe6w-v9';
 
 const PRECACHE_URLS = [
   './',

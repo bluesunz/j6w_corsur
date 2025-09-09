@@ -7,6 +7,7 @@
   <title>Vibe 6W — Pushup/Squat/Plank</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-192.png">
   <meta name="apple-mobile-web-app-title" content="Vibe6W">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,37 +16,48 @@
   <style>
     :root {
       color-scheme: light dark;
-      --bg: #0b0c10;
-      --fg: #eaeef5;
-      --muted: #98a2b3;
-      --card: #12141a;
-      --surface: #0f1217;
-      --sep: #1f2430;
-      --accent: #3c6df0;
-      --tile1: #1d2540;
-      --tile2: #153226;
-      --tile3: #3a2a12
+      --bg: #0e1116;
+      --fg: #eef2f8;
+      --muted: #a9b3c3;
+      --card: #131826;
+      --surface: #101726;
+      --sep: #222b3a;
+      --accent: #8fb2ff;
+      /* pastel blue */
+      --tile1: #1c2744;
+      /* pastel tint dark */
+      --tile2: #1a2f26;
+      /* pastel mint tint dark */
+      --tile3: #3a2e19;
+      /* pastel amber tint dark */
+      --header: rgba(255, 255, 255, 0.06)
     }
 
     @media(prefers-color-scheme:light) {
       :root {
-        --bg: #f7f8fb;
-        --fg: #0b0c10;
-        --muted: #667085;
-        --card: #fff;
-        --surface: #f4f6f8;
-        --sep: #e4e7ec;
-        --accent: #1e66ff;
+        --bg: #f7f9ff;
+        --fg: #0c1220;
+        --muted: #6b7280;
+        --card: #ffffff;
+        --surface: #f2f6ff;
+        /* pastel blue surface */
+        --sep: #e6e9f2;
+        --accent: #7aa7ff;
+        /* pastel blue */
         --tile1: #eaf2ff;
+        /* blue */
         --tile2: #eafaf2;
-        --tile3: #fff4db
+        /* mint */
+        --tile3: #fff5e1;
+        /* amber */
+        --header: rgba(122, 167, 255, 0.18)
       }
     }
 
     /* Sidebar contrast tuning for light mode */
     @media(prefers-color-scheme:light) {
       #sidebar {
-        background: rgba(255, 255, 255, 0.92);
+        background: rgba(255, 255, 255, 0.72) !important;
         border-right: 1px solid var(--sep);
         backdrop-filter: blur(8px);
       }
@@ -56,6 +68,10 @@
 
       #sidebar h2 {
         color: var(--fg);
+      }
+
+      header {
+        background: rgba(255, 255, 255, .7);
       }
     }
 
@@ -73,6 +89,7 @@
 
     body {
       min-height: 100svh;
+      overscroll-behavior-y: contain;
     }
 
     * {
@@ -94,7 +111,7 @@
       position: sticky;
       top: 0;
       padding: calc(14px + env(safe-area-inset-top)) 16px 14px;
-      background: rgba(0, 0, 0, .06);
+      background: var(--header);
       backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--sep);
       z-index: 20;
@@ -113,7 +130,8 @@
     main {
       max-width: 760px;
       margin: 0 auto;
-      padding: 16px
+      padding: 16px;
+      overscroll-behavior-y: contain
     }
 
     .grid {
@@ -236,6 +254,66 @@
       color: var(--muted)
     }
 
+    /* Calendar */
+    .cal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px
+    }
+
+    .cal-cell {
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--sep);
+      border-radius: 10px;
+      background: var(--card);
+      position: relative;
+      color: var(--muted)
+    }
+
+    .cal-cell .dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ff4d4f
+    }
+
+    .cal-cell.today {
+      color: var(--fg);
+      background: linear-gradient(180deg, rgba(122, 167, 255, 0.25), rgba(122, 167, 255, 0.15));
+      border-color: rgba(122, 167, 255, 0.45);
+      font-weight: 800
+    }
+
+    .cal-cell.selected {
+      color: var(--fg);
+      background: linear-gradient(180deg, rgba(98, 240, 196, 0.25), rgba(98, 240, 196, 0.12));
+      border-color: rgba(98, 240, 196, 0.45);
+      font-weight: 800
+    }
+
+    .cal-dow {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 6px
+    }
+
+    .streak {
+      font-weight: 700
+    }
+
     #sidebar {
       position: fixed;
       top: 0;
@@ -337,6 +415,7 @@
     <h2>Menu</h2>
     <ul>
       <li><a href="#" data-nav="home">Home</a></li>
+      <li><a href="#" data-nav="calendar">Calendar</a></li>
       <li><a href="#" data-nav="pushup">Push-ups</a></li>
       <li><a href="#" data-nav="squat">Squats</a></li>
       <li><a href="#" data-nav="plank">Plank</a></li>
@@ -350,18 +429,35 @@
       <div class="grid">
         <div class="card workout" data-go="pushup">
           <div class="name">Push-ups</div>
-          <div class="sub">Sets · Reps</div>
+          <div class="sub" id="home-prog-pushup">Sets · Reps</div>
         </div>
         <div class="card workout" data-go="squat">
           <div class="name">Squats</div>
-          <div class="sub">Sets · Reps</div>
+          <div class="sub" id="home-prog-squat">Sets · Reps</div>
         </div>
         <div class="card workout" data-go="plank">
           <div class="name">Plank</div>
-          <div class="sub">Seconds · Timer</div>
+          <div class="sub" id="home-prog-plank">Seconds · Timer</div>
         </div>
       </div>
       <div class="page-label">Home</div>
+    </section>
+
+    <section id="calendar" class="hidden">
+      <div class="card">
+        <div class="cal-header">
+          <button class="btn ghost" id="cal-prev">‹</button>
+          <div><b id="cal-ym">2024-01</b> · <span class="streak" id="cal-streak">0</span> day streak</div>
+          <button class="btn ghost" id="cal-next">›</button>
+        </div>
+        <div class="cal-dow">Sun · Mon · Tue · Wed · Thu · Fri · Sat</div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+      <div class="card" id="cal-detail" style="margin-top:10px">
+        <div class="small" style="margin-bottom:6px">Selected Day</div>
+        <div id="cal-detail-text">—</div>
+      </div>
+      <div class="page-label">Calendar</div>
     </section>
 
     <section id="session" class="hidden">
@@ -396,19 +492,25 @@
           <div class="card" style="padding:12px">
             <div style="display:flex;justify-content:space-between;align-items:center">
               <div><b>Push-ups</b> <span class="small" id="rp-pushup"></span></div>
-              <button class="btn" id="rst-pushup">Reset</button>
+              <button class="btn" id="rst-pushup">Clear</button>
             </div>
           </div>
           <div class="card" style="padding:12px">
             <div style="display:flex;justify-content:space-between;align-items:center">
               <div><b>Squats</b> <span class="small" id="rp-squat"></span></div>
-              <button class="btn" id="rst-squat">Reset</button>
+              <button class="btn" id="rst-squat">Clear</button>
             </div>
           </div>
           <div class="card" style="padding:12px">
             <div style="display:flex;justify-content:space-between;align-items:center">
               <div><b>Plank</b> <span class="small" id="rp-plank"></span></div>
-              <button class="btn" id="rst-plank">Reset</button>
+              <button class="btn" id="rst-plank">Clear</button>
+            </div>
+          </div>
+          <div class="card" style="padding:12px;border: 2px dashed var(--sep)">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div><b>Calendar Records</b> <span class="small">Clear all records</span></div>
+              <button class="btn flat" id="rst-calendar">Clear</button>
             </div>
           </div>
         </div>
@@ -432,13 +534,23 @@
   <script>
     // ===== Core state/util =====
     const $ = q => document.querySelector(q), $$ = q => Array.from(document.querySelectorAll(q));
+    const id = q => document.getElementById(q);
     const SKEY = 'vibe6w_final_v5';
-    const D = () => ({ rest: 90, workout: 'pushup', sets: [], max: {}, progress: { pushup: { w: 1, d: 1 }, squat: { w: 1, d: 1 }, plank: { w: 1, d: 1 } } });
+    const D = () => ({ rest: 90, workout: 'pushup', sets: [], max: {}, progress: { pushup: { w: 1, d: 1 }, squat: { w: 1, d: 1 }, plank: { w: 1, d: 1 } }, done: {} });
     let st = JSON.parse(localStorage.getItem(SKEY) || 'null') || D();
     const save = () => localStorage.setItem(SKEY, JSON.stringify(st));
     const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
     const pad2 = n => String(n).padStart(2, '0');
     const fmt = s => { s = Math.max(0, s | 0); return pad2((s / 60 | 0)) + ':' + pad2(s % 60 | 0) };
+
+    // ===== Strings & helpers =====
+    const STR = {
+      confirmClearAll: 'Delete all calendar completion records?',
+      alertCalCleared: 'Calendar records have been cleared.',
+      alertWorkoutCleared: (name) => `${name} cleared. Initial max will be requested next time.`
+    };
+    const ymdFrom = (y, m, d) => `${y}-${pad2(m)}-${pad2(d)}`;
+    const getTodayKey = () => { const t = new Date(); return ymdFrom(t.getFullYear(), t.getMonth() + 1, t.getDate()); };
 
     // ===== Constants & helpers (cleaned) =====
     const WORKOUT_LABEL = { pushup: 'Push-ups', squat: 'Squats', plank: 'Plank' };
@@ -450,13 +562,35 @@
     const DEFAULT_MAX = { pushup: 20, squat: 30, plank: 45 };
 
     // ===== Navigation/views =====
+    // Wake Lock handle
+    let wakeLock = null;
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
+          wakeLock.addEventListener && wakeLock.addEventListener('release', () => { });
+        }
+      } catch (_) { }
+    }
+    async function releaseWakeLock() {
+      try { if (wakeLock) { await wakeLock.release(); wakeLock = null; } } catch (_) { }
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && !id('session').classList.contains('hidden')) {
+        requestWakeLock();
+      }
+    });
+
     function view(v) {
-      $('#home').classList.toggle('hidden', v !== 'home');
-      $('#session').classList.toggle('hidden', v !== 'session');
-      $('#reset').classList.toggle('hidden', v !== 'reset');
-      const titleMap = { home: 'Workout Selection', session: (st.workoutName || 'Session'), reset: 'Reset' };
-      $('#title').textContent = titleMap[v] || 'Vibe 6W';
-      $('#backTop').classList.toggle('hidden', v === 'home');
+      id('home').classList.toggle('hidden', v !== 'home');
+      id('calendar').classList.toggle('hidden', v !== 'calendar');
+      id('session').classList.toggle('hidden', v !== 'session');
+      id('reset').classList.toggle('hidden', v !== 'reset');
+      const titleMap = { home: 'Workout Selection', calendar: 'Calendar', session: (st.workoutName || 'Session'), reset: 'Reset' };
+      id('title').textContent = titleMap[v] || 'Vibe 6W';
+      id('backTop').classList.toggle('hidden', v === 'home');
+      if (v === 'session') { requestWakeLock(); } else { releaseWakeLock(); }
+      if (v === 'calendar') { renderCalendar(); }
     }
     $('#backTop').addEventListener('click', () => view('home'));
 
@@ -592,6 +726,14 @@
       const p = getProg(w);
       $('#progText').textContent = `Week ${p.w} · Day ${p.d}`;
     }
+    function refreshHomeProgress() {
+      const pp = getProg('pushup');
+      const sp = getProg('squat');
+      const lp = getProg('plank');
+      const hp = document.getElementById('home-prog-pushup'); if (hp) hp.textContent = `Week ${pp.w} · Day ${pp.d}`;
+      const hs = document.getElementById('home-prog-squat'); if (hs) hs.textContent = `Week ${sp.w} · Day ${sp.d}`;
+      const hl = document.getElementById('home-prog-plank'); if (hl) hl.textContent = `Week ${lp.w} · Day ${lp.d}`;
+    }
     function renderSets() { const box = $('#sets'); box.innerHTML = ''; st.sets.forEach((v, i) => { const r = document.createElement('div'); r.className = 'setrow'; r.innerHTML = `<div class="setnum">${i + 1}</div><div>${st.workout === 'plank' ? `<b>${v}s</b> Plank <span class="small">Left:<b id="rem-${i}">${fmt(v)}</b></span>` : `<b>${v} reps</b> ${st.workoutName}`}</div><div><input type="checkbox"></div>`; box.appendChild(r); }); }
     function restMapFor(ex, week) {
       return ex === 'squat' ? (SQUAT_REST_BY_WEEK_DAY[week] || [90, 90, 90]) : (REST_BY_WEEK_DAY[week] || [90, 90, 90]);
@@ -605,7 +747,7 @@
       st.rest = restMap[p.d - 1] || 90;
       st.sets = genRoutine(st.workout);
       renderSets();
-      $('#rest').textContent = fmt(st.rest);
+      id('rest').textContent = fmt(st.rest);
     }
 
     function startWorkout(ex) {
@@ -616,7 +758,26 @@
     }
     $$('.workout').forEach(c => c.addEventListener('click', () => startWorkout(c.dataset.go)));
 
-    function advanceSession() { incProg(st.workout); setupSession(); save(); }
+    function markTodayDone() {
+      const today = new Date();
+      const y = today.getFullYear();
+      const m = String(today.getMonth() + 1).padStart(2, '0');
+      const d = String(today.getDate()).padStart(2, '0');
+      const key = `${y}-${m}-${d}`;
+      const p = getProg(st.workout);
+      const entry = { workout: st.workout, week: p.w, day: p.d };
+      const cur = st.done[key];
+      if (Array.isArray(cur)) {
+        if (!cur.some(e => e.workout === entry.workout && e.week === entry.week && e.day === entry.day)) cur.push(entry);
+      } else if (cur && typeof cur === 'object') {
+        const arr = [cur];
+        if (!arr.some(e => e.workout === entry.workout && e.week === entry.week && e.day === entry.day)) arr.push(entry);
+        st.done[key] = arr;
+      } else {
+        st.done[key] = [entry];
+      }
+    }
+    function advanceSession() { incProg(st.workout); markTodayDone(); setupSession(); save(); refreshHomeProgress(); }
     function prevSession() { const p = getProg(st.workout); p.d--; if (p.d < 1) { if (p.w > 1) { p.w--; p.d = 3; } else { p.d = 1; } } save(); setupSession(); }
     $('#next').addEventListener('click', advanceSession);
     $('#prev').addEventListener('click', prevSession);
@@ -629,7 +790,7 @@
     $('#toggle').addEventListener('click', () => running ? stopRest() : startRest());
 
     // ===== Sidebar & gestures =====
-    const sidebarEl = $('#sidebar'), scrimEl = $('#scrim');
+    const sidebarEl = id('sidebar'), scrimEl = id('scrim');
     const isOpen = () => sidebarEl.classList.contains('show');
     const openSidebar = () => { sidebarEl.classList.add('show'); scrimEl.classList.remove('hidden'); };
     const closeSidebar = () => { sidebarEl.classList.remove('show'); scrimEl.classList.add('hidden'); };
@@ -639,6 +800,7 @@
       e.preventDefault();
       const nav = a.dataset.nav;
       if (nav === 'home') { view('home'); }
+      else if (nav === 'calendar') { view('calendar'); defaultCalendarDetail(); }
       else if (['pushup', 'squat', 'plank'].includes(nav)) { startWorkout(nav); }
       else if (nav === 'reset') { refreshReset(); view('reset'); }
       closeSidebar();
@@ -651,31 +813,147 @@
     // ===== Reset page =====
     function refreshReset() {
       const pp = getProg('pushup'), sp = getProg('squat'), lp = getProg('plank');
-      const rpP = document.getElementById('rp-pushup');
-      const rpS = document.getElementById('rp-squat');
-      const rpL = document.getElementById('rp-plank');
+      const rpP = id('rp-pushup');
+      const rpS = id('rp-squat');
+      const rpL = id('rp-plank');
       if (rpP) rpP.textContent = `· Week ${pp.w} · Day ${pp.d}` + (st.max.pushup == null ? ' · Max: not set' : '');
       if (rpS) rpS.textContent = `· Week ${sp.w} · Day ${sp.d}` + (st.max.squat == null ? ' · Max: not set' : '');
       if (rpL) rpL.textContent = `· Week ${lp.w} · Day ${lp.d}` + (st.max.plank == null ? ' · Max: not set' : '');
     }
     ['pushup', 'squat', 'plank'].forEach(ex => {
-      const btn = document.getElementById('rst-' + ex);
+      const btn = id('rst-' + ex);
       if (btn) btn.addEventListener('click', () => {
         st.progress[ex] = { w: 1, d: 1 };
         st.max[ex] = null; // force re-input of initial max next time
         save();
         refreshReset();
-        alert(ex.charAt(0).toUpperCase() + ex.slice(1) + ' reset. Initial max will be requested next time.');
+        refreshHomeProgress();
+        alert(STR.alertWorkoutCleared(ex.charAt(0).toUpperCase() + ex.slice(1)));
       });
+    });
+    const rc = id('rst-calendar');
+    if (rc) rc.addEventListener('click', () => {
+      if (confirm(STR.confirmClearAll)) {
+        st.done = {};
+        save();
+        if (!id('calendar').classList.contains('hidden')) { renderCalendar(); defaultCalendarDetail(); }
+        alert(STR.alertCalCleared);
+      }
     });
 
     // ===== Init =====
-    // Register service worker (PWA)
+    // ===== Calendar =====
+    let calYear = (new Date()).getFullYear();
+    let calMonth = (new Date()).getMonth();
+    let calSelectedKey = null;
+    function ymd(dt) {
+      const y = dt.getFullYear();
+      const m = String(dt.getMonth() + 1).padStart(2, '0');
+      const d = String(dt.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    function hasRecord(val) { return Array.isArray(val) ? val.length > 0 : (val && typeof val === 'object'); }
+    function calcStreak() {
+      let streak = 0;
+      const today = new Date();
+      let cur = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      while (st.done && hasRecord(st.done[ymd(cur)])) { streak++; cur.setDate(cur.getDate() - 1); }
+      return streak;
+    }
+    function selectCalendarKey(key) {
+      const grid = id('cal-grid');
+      if (!grid || !key) return;
+      const [y, m, d] = key.split('-').map(v => Number(v));
+      // clear previous selection
+      $$('#cal-grid .cal-cell').forEach(el => el.classList.remove('selected'));
+      if (y === calYear && (m - 1) === calMonth) {
+        const offset = (new Date(calYear, calMonth, 1)).getDay();
+        const idx = offset + (d - 1);
+        const cells = $$('#cal-grid .cal-cell');
+        if (cells[idx]) cells[idx].classList.add('selected');
+      }
+      calSelectedKey = key;
+      showDayDetail(key);
+    }
+    function renderCalendar() {
+      const grid = id('cal-grid');
+      if (!grid) return;
+      const first = new Date(calYear, calMonth, 1);
+      const last = new Date(calYear, calMonth + 1, 0);
+      const startDow = first.getDay();
+      const days = last.getDate();
+      grid.innerHTML = '';
+      id('cal-ym').textContent = `${calYear}-${String(calMonth + 1).padStart(2, '0')}`;
+      const streakEl = id('cal-streak'); if (streakEl) streakEl.textContent = String(calcStreak());
+      for (let i = 0; i < startDow; i++) {
+        const pad = document.createElement('div');
+        pad.className = 'cal-cell';
+        pad.style.visibility = 'hidden';
+        grid.appendChild(pad);
+      }
+      const now = new Date();
+      const isThisMonth = (now.getFullYear() === calYear) && (now.getMonth() === calMonth);
+      for (let d = 1; d <= days; d++) {
+        const cell = document.createElement('div');
+        cell.className = 'cal-cell';
+        cell.textContent = d;
+        if (isThisMonth && d === now.getDate()) {
+          cell.classList.add('today');
+        }
+        const key = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        if (st.done && hasRecord(st.done[key])) {
+          const dot = document.createElement('div');
+          dot.className = 'dot';
+          cell.appendChild(dot);
+          // keep text readable, no overlap as dot is top-right
+        }
+        cell.addEventListener('click', () => selectCalendarKey(key));
+        grid.appendChild(cell);
+      }
+      // keep previous selection if still in view
+      if (calSelectedKey) selectCalendarKey(calSelectedKey);
+    }
+    function showDayDetail(key) {
+      const box = id('cal-detail-text');
+      if (!box) return;
+      const info = st.done && st.done[key];
+      if (!info) { box.textContent = ''; return; }
+      let entries = [];
+      if (Array.isArray(info)) {
+        entries = info.filter(e => e && typeof e === 'object' && e.workout && e.week && e.day);
+      } else if (info && typeof info === 'object') {
+        entries = (info.workout && info.week && info.day) ? [info] : [];
+      }
+      if (entries.length === 0) { box.textContent = ''; return; }
+      const lines = entries.map(e => {
+        const label = WORKOUT_LABEL[e.workout] || e.workout;
+        return `${label} · Week ${e.week} · Day ${e.day}`;
+      });
+      box.innerHTML = `${key}<br>` + lines.join('<br>');
+    }
+    document.addEventListener('click', (e) => {
+      if (e.target && e.target.id === 'cal-prev') { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); defaultCalendarDetail(); }
+      if (e.target && e.target.id === 'cal-next') { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); defaultCalendarDetail(); }
+    });
+    function defaultCalendarDetail() {
+      const today = new Date();
+      const key = getTodayKey();
+      const inView = (today.getFullYear() === calYear) && (today.getMonth() === calMonth);
+      if (inView) {
+        selectCalendarKey(key);
+      }
+      else {
+        const box = id('cal-detail-text');
+        if (box) box.textContent = '—';
+      }
+    }
+
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js');
       });
     }
+    refreshHomeProgress();
     view('home');
   </script>
 </body>
